@@ -126,7 +126,7 @@ public class GameFragment extends Fragment {
     /**
      * ゲームのリスタート
      */
-    private void restartGame() {
+    public void restartGame() {
         initGame();
         initViews(getView());
         updateAllTiles();
