@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 /**
  * Created by katsuya on 16/07/08.
@@ -63,5 +64,15 @@ public class GameActivity extends AppCompatActivity {
         dialog.show();
         // 盤を初期状態にリセットする
         mGameFragment.initGame();
+    }
+
+    public void startThinking() {
+        View thinkView = findViewById(R.id.thinking);
+        thinkView.setVisibility(View.VISIBLE);
+    }
+
+    public void stopThinking() {
+        View thinkView = findViewById(R.id.thinking);
+        thinkView.setVisibility(View.GONE);
     }
 }

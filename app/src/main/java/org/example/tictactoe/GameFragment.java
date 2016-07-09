@@ -1,6 +1,7 @@
 package org.example.tictactoe;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,6 +32,7 @@ public class GameFragment extends Fragment {
     private Set<Tile> mAvailable = new HashSet<Tile>();
     private int mLastLarge;
     private int mLastSmall;
+    private Handler mHandler = new Handler();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,7 +90,8 @@ public class GameFragment extends Fragment {
                     public void onClick(View view) {
                        if (isAvailable(smallTile)) {
                            makeMove(fLarge, fSmall);
-                           switchTurns();
+                           //switchTurns();
+                           think();
                        }
                    }
                 });
@@ -216,5 +219,56 @@ public class GameFragment extends Fragment {
                 mSmallTiles[large][small].updateDrawableState();
             }
         }
+    }
+
+    /**
+     * 考え中関数
+     */
+    private void think() {
+        ((GameActivity) getActivity()).startThinking();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (getActivity() == null) return;
+                if (mEntireBoard.getOwner() == Tile.Owner.NEITHER) {
+                    int move[] = new int[2];
+                    pickMove(move);
+                    if (move[0] != -1 && move[1] != -1) {
+                        switchTurns();
+                        makeMove(move[0], move[1]);
+                        switchTurns();
+                    }
+                }
+                ((GameActivity) getActivity()).stopThinking();
+            }
+        }, 1000);
+    }
+
+    private void pickMove(int move[]) {
+        Tile.Owner opponent = mPlayer == Tile.Owner.X ? Tile.Owner.O : Tile.Owner.X;
+        int bestLarge = -1;
+        int bestSmall = -1;
+        int bestValue = Integer.MAX_VALUE;
+        for (int large = 0; large < 9; large++) {
+            for (int small = 0; small < 9; small++) {
+                Tile smallTile = mSmallTiles[large][small];
+                if (isAvailable(smallTile)) {
+                    // 指し手を試してスコアを計算
+                    Tile newBoard = mEntireBoard.deepCopy();
+                    newBoard.getSubTiles()[large].getSubTiles()[small].setOwner(opponent);
+                    int value = newBoard.evaluate();
+                    Log.d("UT3",
+                            "Moving to " + large + ", " + small + " gives value " + value);
+                    if (value < bestValue) {
+                        bestLarge = large;
+                        bestSmall = small;
+                        bestValue = value;
+                    }
+                }
+            }
+        }
+        move[0] = bestLarge;
+        move[1] = bestSmall;
+        Log.d("UT3", "Best move is " + bestLarge + ", " + bestSmall);
     }
 }
