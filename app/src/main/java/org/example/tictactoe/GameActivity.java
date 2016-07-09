@@ -58,6 +58,10 @@ public class GameActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         finish();
                     }
-                })
+                });
+        final Dialog dialog = builder.create();
+        dialog.show();
+        // 盤を初期状態にリセットする
+        mGameFragment.initGame();
     }
 }
