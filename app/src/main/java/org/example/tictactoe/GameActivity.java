@@ -38,7 +38,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         String gameData = mGameFragment.getState();
-        getPreference(MODE_PRIVATE).edit()
+        getPreferences(MODE_PRIVATE).edit()
                 .putString(PREF_RESTORE, gameData)
                 .commit();
         Log.d("UT3", "state = " + gameData);
