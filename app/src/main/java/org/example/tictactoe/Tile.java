@@ -3,6 +3,8 @@ package org.example.tictactoe;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageButton;
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 
 /**
  * Created by katsuya on 16/07/09.
@@ -201,4 +203,12 @@ public class Tile {
         return tile;
     }
 
+    public void animate() {
+        Animator anim = AnimatorInflater.loadAnimator(mGame.getActivity(),
+                R.animator.tictactoe);
+        if (getView() != null) {
+            anim.setTarget(getView());
+            anim.start();
+        }
+    }
 }
