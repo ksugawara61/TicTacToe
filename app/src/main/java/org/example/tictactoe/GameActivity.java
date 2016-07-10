@@ -2,7 +2,9 @@ package org.example.tictactoe;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,6 +18,8 @@ public class GameActivity extends AppCompatActivity {
     public static final String KEY_RESTORE = "Key_restore";
     public static final String PREF_RESTORE = "pref_restore";
     private GameFragment mGameFragment;
+    private MediaPlayer mMediaPlayer;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +40,20 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mMediaPlayer = MediaPlayer.create(this, R.raw.frankum_loop001e);
+        mMediaPlayer.setLooping(true);
+        mMediaPlayer.start();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        mHandler.removeCallbacks(null);
+        mMediaPlayer.stop();
+        mMediaPlayer.reset();
+        mMediaPlayer.release();
         String gameData = mGameFragment.getState();
         getPreferences(MODE_PRIVATE).edit()
                 .putString(PREF_RESTORE, gameData)
@@ -50,6 +66,11 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void reportWinner(final Tile.Owner winner) {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.declare_winner, winner));
         builder.setCancelable(false);
@@ -61,7 +82,19 @@ public class GameActivity extends AppCompatActivity {
                     }
                 });
         final Dialog dialog = builder.create();
-        dialog.show();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMediaPlayer = MediaPlayer.create(GameActivity.this,
+                        winner == Tile.Owner.X ? R.raw.oldedgar_winner
+                : winner == Tile.Owner.O ? R.raw.notr_loser
+                : R.raw.department64_draw
+                );
+                mMediaPlayer.start();
+                dialog.show();
+            }
+        }, 500);
+
         // 盤を初期状態にリセットする
         mGameFragment.initGame();
     }
@@ -75,4 +108,5 @@ public class GameActivity extends AppCompatActivity {
         View thinkView = findViewById(R.id.thinking);
         thinkView.setVisibility(View.GONE);
     }
+
 }
