@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.media.AudioManager;
+import android.media.SoundPool;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +35,9 @@ public class GameFragment extends Fragment {
     private int mLastLarge;
     private int mLastSmall;
     private Handler mHandler = new Handler();
+    private int mSoundX, mSoundO, mSoundMiss, mSoundRewind;
+    private SoundPool mSoundPool;
+    private float mVolume = 1f;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,11 @@ public class GameFragment extends Fragment {
         // コンフィギュレーションの変更を跨いでこのフラグメントを維持する
         setRetainInstance(true);
         initGame();
+        mSoundPool = new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+        mSoundX = mSoundPool.load(getActivity(), R.raw.sergenious_movex, 1);
+        mSoundO = mSoundPool.load(getActivity(), R.raw.sergenious_moveo, 1);
+        mSoundMiss = mSoundPool.load(getActivity(), R.raw.erkanozan_miss, 1);
+        mSoundRewind = mSoundPool.load(getActivity(), R.raw.joanne_rewind, 1);
     }
 
     @Nullable
@@ -89,9 +99,13 @@ public class GameFragment extends Fragment {
                    @Override
                     public void onClick(View view) {
                        if (isAvailable(smallTile)) {
+                           mSoundPool.play(mSoundX, mVolume, mVolume, 1, 0, 1f);
                            makeMove(fLarge, fSmall);
                            //switchTurns();
                            think();
+                       }
+                       else {
+                           mSoundPool.play(mSoundMiss, mVolume, mVolume, 1, 0, 1f);
                        }
                    }
                 });
@@ -235,6 +249,7 @@ public class GameFragment extends Fragment {
                     pickMove(move);
                     if (move[0] != -1 && move[1] != -1) {
                         switchTurns();
+                        mSoundPool.play(mSoundO, mVolume, mVolume, 1, 0, 1f);
                         makeMove(move[0], move[1]);
                         switchTurns();
                     }
