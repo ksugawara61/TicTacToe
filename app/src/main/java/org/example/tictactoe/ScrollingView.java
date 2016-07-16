@@ -60,8 +60,9 @@ public class ScrollingView extends View {
             // 画像が表示される位置をずらす
             mScrollPos += 2;
             if (mScrollPos >= max) mScrollPos -= max;
-            setTranslationX(-mScrollPos);
-            setTranslationY(-mScrollPos);
+            canvas.translate(-mScrollPos, -mScrollPos);
+            //setTranslationX(-mScrollPos);
+            //setTranslationY(-mScrollPos);
 
             // 描画するとともに、次回も描画するように指示
             mBackground.draw(canvas);
